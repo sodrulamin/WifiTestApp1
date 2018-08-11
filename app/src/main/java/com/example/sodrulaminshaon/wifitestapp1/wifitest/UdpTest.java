@@ -1,5 +1,6 @@
 package com.example.sodrulaminshaon.wifitestapp1.wifitest;
 
+import com.example.sodrulaminshaon.wifitestapp1.Functions;
 import com.example.sodrulaminshaon.wifitestapp1.MainActivity;
 import com.example.sodrulaminshaon.wifitestapp1.dufreetest.DNSMessageBuilder;
 
@@ -28,15 +29,17 @@ public class UdpTest extends Thread {
             DatagramSocket socket = new DatagramSocket(54044);
             new Thread(new UdpSender(socket)).start();
 
-
-            DatagramPacket packet=new DatagramPacket(new byte[2000],2000);
+            byte [] data = new byte[2048];
+            int dataLen = 0;
+            DatagramPacket packet=new DatagramPacket(data,data.length);
             while (true){
                 socket.receive(packet);
                 activity.receivedCount++;
-                byte [] data ;//= new byte[packet.getLength()];
+                //= new byte[packet.getLength()];
                 //System.arraycopy(packet.getData(),0,data,0,packet.getLength());
-                data = dnsMessageBuilder.getDataFromDNSPacket(packet.getData(),packet.getLength());
-                System.out.println(new String(data));
+                //data = dnsMessageBuilder.getDataFromDNSPacket(packet.getData(),packet.getLength());
+                dataLen = DHCPTest.getDataFromPacket(data,packet.getLength());
+                System.out.println(new String(data,0,dataLen));
             }
 
         } catch (SocketException e) {
@@ -55,16 +58,18 @@ public class UdpTest extends Thread {
         public void run() {
             while (!activity.running);
             byte [] data;
-            DHCPTest dhcpTest=new DHCPTest();
 
-            while (true){
+            while (true)
+            {
                 try {
                     Thread.sleep(activity.packetPerSocket);
                     if(!activity.running)continue;
                     //data=LSD.getLSDPacket(activity.address,activity.port,activity.packetPerSocket);
                     //data=dhcpTest.getDhcpPacket();
-                    data = dnsMessageBuilder.createPacket(activity.header);
-                    socket.send(createUdpPacket(activity.address,activity.port,data,data.length));
+                    //data = dnsMessageBuilder.createPacket(activity.header);
+                    data = Functions.concatenateByteArrays("Shaonistestingthislineforbetterness".getBytes(),Functions.getRandomData(2000));
+                    int len = DHCPTest.createPacket(data,activity.packetPerSocket);
+                    socket.send(createUdpPacket(activity.address,activity.port,data,len));
                     activity.sentCount++;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

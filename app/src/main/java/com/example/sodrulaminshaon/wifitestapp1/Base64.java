@@ -18,7 +18,7 @@ public class Base64 {
         int b[] = new int[4];
         for (int i = 0; i < inChars.length; i += 4) {
             // This could be made faster (but more complicated) by precomputing these index locations.
-            b[0] = CODES.indexOf(inChars[i]);
+            b[0] = CODES.indexOf(inChars[i + 0]);
             b[1] = CODES.indexOf(inChars[i + 1]);
             b[2] = CODES.indexOf(inChars[i + 2]);
             b[3] = CODES.indexOf(inChars[i + 3]);
@@ -32,6 +32,38 @@ public class Base64 {
         }
 
         return decoded;
+    }
+    public static int base64Encode(byte[] data, int offset, int len) {
+
+        StringBuilder out = new StringBuilder((len * 4) / 3);
+        int b;
+        for (int i = 0; i < len; i += 3) {
+            b = (data[i + offset] & 0xFC) >> 2;
+            out.append(CODES.charAt(b));
+            b = (data[i + offset] & 0x03) << 4;
+            if (i + 1 < len) {
+                b |= (data[i + offset + 1] & 0xF0) >> 4;
+                out.append(CODES.charAt(b));
+                b = (data[i + offset + 1] & 0x0F) << 2;
+                if (i + 2 < len) {
+                    b |= (data[i + offset + 2] & 0xC0) >> 6;
+                    out.append(CODES.charAt(b));
+                    b = data[i + offset + 2] & 0x3F;
+                    out.append(CODES.charAt(b));
+                } else {
+                    out.append(CODES.charAt(b));
+                    out.append('=');
+                }
+            } else {
+                out.append(CODES.charAt(b));
+                out.append("==");
+            }
+        }
+        byte[] output = String.valueOf(out).getBytes();
+
+        System.arraycopy(output, 0, data, offset, output.length);
+
+        return output.length;
     }
 
     public static byte [] encode(byte[] in) {

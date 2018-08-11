@@ -53,12 +53,14 @@ public class Base64Encoding implements Runnable {
                 socket=new Socket(activity.address,activity.port);
                 new Thread(new Receiver(socket)).start();
                 OutputStream os=socket.getOutputStream();
+                InputStream is = socket.getInputStream();
 
                 while(true) {
                     //Thread.sleep(sleep);
                     if(!activity.running)continue;
                     os.write(createBase64Packet(activity.packetPerSocket+random.nextInt(20)));
                     activity.sentCount++;
+                    if(readByte(is) > 0)activity.receivedCount++;
 
                     break;
                 }

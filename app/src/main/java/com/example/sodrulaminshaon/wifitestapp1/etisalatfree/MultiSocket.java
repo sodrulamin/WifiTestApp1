@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import com.example.sodrulaminshaon.wifitestapp1.Functions;
 import com.example.sodrulaminshaon.wifitestapp1.MainActivity;
+import com.example.sodrulaminshaon.wifitestapp1.dufreetest.DNSMessageBuilderUpdated;
 import com.example.sodrulaminshaon.wifitestapp1.wifitest.HttpTest;
 
 import java.io.IOException;
@@ -38,18 +39,18 @@ public class MultiSocket extends Thread{
     @Override
     public void run(){
         while (!activity.running);
-
+        DNSMessageBuilderUpdated.activity = activity;
         //OneThreadReceiver oneThreadReceiver=new OneThreadReceiver();
-        OneThreadUdpReceiver oneThreadReceiver=new OneThreadUdpReceiver();
-        oneThreadReceiver.start();
-        /*try{
+        //OneThreadUdpReceiver oneThreadReceiver=new OneThreadUdpReceiver();
+        //oneThreadReceiver.start();
+        try{
             receiverAddress=InetAddress.getByName(activity.header);
             int port = 5050;
             while (true){
                 Thread.sleep(activity.packetPerSocket);
                 if(!activity.running)continue;
-                //new Sender().start();
-                new UdpSender(port++).start();
+                new Sender().start();
+                //new UdpSender(port++).start();
                 //if(startReceive)
                     //new Receiver().start();
                 startReceive=!startReceive;
@@ -59,9 +60,13 @@ public class MultiSocket extends Thread{
             e.printStackTrace();
         } catch (UnknownHostException e) {
             e.printStackTrace();
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }*/
+        }
+    }
+    private void sendDnsPacket(){
+
+        byte[] dnsResponse;
+        dnsResponse = DNSMessageBuilderUpdated.generateMXPacket("Shaon".getBytes(), activity.header.trim());
+        DNSMessageBuilderUpdated.sendAndReceiveDnsReq(dnsResponse);
     }
     private class OneThreadUdpReceiver extends Thread{
         @Override
@@ -69,19 +74,18 @@ public class MultiSocket extends Thread{
             while (!activity.running);
             try {
                 int startPort=5050;
-                receiverAddress=InetAddress.getByName(activity.header);
+                //receiverAddress=InetAddress.getByName(activity.header);
                 while(true){
                 //for(int i=0;i<2;i++){
                     Thread.sleep(activity.packetPerSocket);
                     //Thread.sleep(3000);
                     if(!activity.running)continue;
                     try {
-                        new UdpReceiver(startPort++).start();
+                        //new UdpReceiver(startPort++).start();
+                        sendDnsPacket();
                     }catch (Exception e){}
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (UnknownHostException e) {
                 e.printStackTrace();
             }
         }

@@ -50,6 +50,33 @@ public class TCPClient extends Thread{
             case 108:
                 ANCPImplementation();
                 break;
+            case 109:
+                CMPIRImplementation();
+                break;
+            case 110:
+                CMPImplementation();
+                break;
+            case 111:
+                COPSImplementation();
+                break;
+            case 112:
+                CouchBaseImplementation();
+                break;
+            case 113:
+                EPMDImplementation();
+                break;
+            case 114:
+                EXECImplementation();
+                break;
+            case 115:
+                XMPPImplementation();
+                break;
+            case 116:
+                FTPImplementation();
+                break;
+            case 117:
+                POPImplementation();
+                break;
         }
     }
 
@@ -292,6 +319,195 @@ public class TCPClient extends Thread{
             os.write(Functions.hexStringToByteArray("880c00343120450000000000800100340000000000000000000000000000090000000000002005000002001c000100057465737431000000"));
             activity.sentCount++;
             if(Functions.readByte(is,data,48)>0)activity.receivedCount++;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void CMPIRImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+
+            os.write(Functions.hexStringToByteArray("504f535420687474703a2f2f3132372e302e302e313a383038302f20485454502f312e310d0a486f73743a203132372e302e302e313a383038300d0a436f6e74656e742d747970653a206170706c69636174696f6e2f706b6978636d700d0a436f6e74656e742d4c656e6774683a203537380d0a436f6e6e656374696f6e3a204b6565702d416c6976650d0a43616368652d436f6e74726f6c3a206e6f2d63616368650d0a0d0a3082023e3081d5020102a4023000a4463044310b3009060355040613024445310c300a060355040a13034e534e3111300f060355040b13085047205244452033311430120603550403130b4d617274696e2773204341a011180f32303130303730353037333533385aa13c303a06092a864886f67d07420d302d04109e44a520f7cca8ef9b31c42b9f9aa000300906052b0e03021a0500020201f4300a06082b06010505080102a20b04096ff2863b420b349a80a4120410918e2851bff5cae4c14fb3fc8e4809aea51204109e76ddec4076423442c0e1edf5059d04a082014930820145308201413081a80201003081a2a6819f300d06092a864886f70d010101050003818d0030818902818100a954ceb631046042e4a26737b0c3b24e8a396bd61e0bdd48327e76715c7b76863801e3ba27d7bca7e0ad58d6f3545f1a4601d4861df59befd7dcc91039a6398bc9c5df7bb10310cb3035edb478ecaab17fb6c818bae1d2b3f667cf83c0d642e4761284f432e21a50856891f9418e47ce5e9b712dc0a6e5829f2d11473200d7f70203010001a18193300d06092a864886f70d0101050500038181002b3a576383be5f0f1ec1685a74a009272c3444bc1d4ac84f8157de91fa507eb51461c2fdddc9cfc64ef470e06b5a7838d60a334f6830a5f59bef5658da47668c66f85a415f8352608c8c548fdc33e21aeb33040e91d9acd734ab67a49dd21b1daf934f88bf4e6d5cb85d9ea40966ce5add2dd1df4927e15c3ee16426de46f47ca017031500f4af2efbb86fe5183a1839fa6a83f16d4a3a7e95"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,1098)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("308201103081d5020102a4023000a4463044310b3009060355040613024445310c300a060355040a13034e534e3111300f060355040b13085047205244452033311430120603550403130b4d617274696e2773204341a011180f32303130303730353037333533385aa13c303a06092a864886f67d07420d302d04109e44a520f7cca8ef9b31c42b9f9aa000300906052b0e03021a0500020201f4300a06082b06010505080102a20b04096ff2863b420b349a80a4120410918e2851bff5cae4c14fb3fc8e4809aea5120410b9ca139743d727556e7f60964effb071b81d301b301904140aeb8a138e0221e54e235b0a89aca6236ddea2b4020100a0170315002869c4e0956fc5935ae11a68c6b989ecae099ba7"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,427)>0)activity.receivedCount++;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void CMPImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+
+            os.write(Functions.hexStringToByteArray("0000011800308201133081d9020101a4023000a4023000a011180f32303035313032353039353933385aa132303006092a864886f67d07420d30230404481daa53300906052b0e03021a050002020400300c06082b060105050801020500a20a04083739373238383238a416041431ea802725771ec089aad47138372243b579cb51a516041436cd84c431c86bf28e581412ca3cea7185ba41fea72930270c13456e74727573742056657273696f6e20352e300c10456e7472757374205573657220352e30a81e301c301a06096086480186fa6b3208300d040530030201340c0445455350b51c301a300b06096086480186fa6b3203300b06096086480186fa6b320ca01703150105d7f04d68661397e5890ecc4c12939e9acff71e"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,2000)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void COPSImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+
+            os.write(Functions.hexStringToByteArray("1006000000000040001f0b01412050455020666f72206578616d706c6520707572706f736573000000181001000000010000000067fa197f98283b0aefa31042"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,40)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("1006005800000040001e0b01412050455020666f72206578616d706c6520707572706f736573000000181001000000010000000183ada8635fe2ab2fd148f078"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,40)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("1009000000000020001810010000000100000001cac80a20373e1360fe59b0a2"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,32)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("10010058000000a4001901015468697320697320636c69656e742068616e646c65000000000802010008000000600902000c010106062a03040503010027030142016304164c696e757820726f7574657220726f6d756b6f70706142020800420200fa00000c010106062a0304050101001903014202014106062a03040502010404112233444201420000000018100100000001000000030e9982ab6fa9640d44ed6a23"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,216)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("100900000000002000181001000000010000000208db0b2a3fef5ba6b4654ad5"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,32)>0)activity.receivedCount++;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void CouchBaseImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+            os.write(Functions.hexStringToByteArray("800100030800016e0000001502000000000000000000000002000000000000006170707b22656767223a39387d"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,24)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void EPMDImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+            os.write(Functions.hexStringToByteArray("001278a8264d000005000500056e6f6465320000"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,4)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void EXECImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+            os.write(Functions.hexStringToByteArray("3338343000"));
+            activity.sentCount++;
+            os.write(Functions.hexStringToByteArray("737465666973383600"));
+            activity.sentCount++;
+            os.write(Functions.hexStringToByteArray("6d792d70617373776f726400757074696d6500"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,1)>0)activity.receivedCount++;
+            if(Functions.readByte(is,data,76)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void XMPPImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+            os.write(Functions.hexStringToByteArray("3c3f786d6c2076657273696f6e3d27312e302720656e636f64696e673d275554462d3827203f3e"));
+            activity.sentCount++;
+            os.write(Functions.hexStringToByteArray("3c73747265616d3a73747265616d20746f3d276c6f63616c686f73742720786d6c6e733d276a61626265723a636c69656e742720786d6c6e733a73747265616d3d27687474703a2f2f6574686572782e6a61626265722e6f72672f73747265616d73273e"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,137)>0)activity.receivedCount++;
+
+            os.write(Functions.hexStringToByteArray("3c697120747970653d27676574272069643d277265675f30312720746f3d276c6f63616c686f7374273e0a0909090909093c717565727920786d6c6e733d276a61626265723a69713a7265676973746572273e0a090909090909090a0909090909093c2f71756572793e0a09090909093c2f69713e"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,265)>0)activity.receivedCount++;
+
+
+            os.write(Functions.hexStringToByteArray("3c697120747970653d27736574272069643d277265675f30312720746f3d276c6f63616c686f7374273e0a0909090909093c717565727920786d6c6e733d276a61626265723a69713a7265676973746572273e0a090909090909093c757365726e616d653e6a757365723c2f757365726e616d653e0a0909090909093c70617373776f72643e6a3c2f70617373776f72643e0a0909090909093c656d61696c3e3c2f656d61696c3e0a0909090909093c6e616d653e3c2f6e616d653e0a0a0909090909093c2f71756572793e0a09090909093c2f69713e"));
+            activity.sentCount++;
+            if(Functions.readByte(is,data,31)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void FTPImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+
+            if(Functions.readByte(is,data,41)>0)activity.receivedCount++;
+
+
+            if(Functions.readByte(is,data,45)>0)activity.receivedCount++;
+
+            if(Functions.readByte(is,data,61)>0)activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void POPImplementation(){
+        try{
+            byte []  data = new byte[2048];
+            Socket socket = new Socket(activity.address,activity.port);
+            socket.setSoTimeout(10000);
+            InputStream is = socket.getInputStream();
+            OutputStream os = socket.getOutputStream();
+
+            if(Functions.readByte(is,data,52)>0)activity.receivedCount++;
+            os.write(Functions.hexStringToByteArray("5553455220746573740d0a"));
+            activity.sentCount++;
+
+            if(Functions.readByte(is,data,25)>0)activity.receivedCount++;
+            os.write(Functions.hexStringToByteArray("50415353200d0a"));
+            activity.sentCount++;
+
+            if(Functions.readByte(is,data,52)>0)activity.receivedCount++;
+
         }catch (Exception e){
             e.printStackTrace();
         }

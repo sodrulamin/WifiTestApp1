@@ -46,7 +46,7 @@
         android:layout_toRightOf="@+id/textView14"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="181.41.196.249"
+        android:text="181.41.196.244"
         android:textAlignment="center" />
 
     <TextView
@@ -74,7 +74,7 @@
         android:layout_toRightOf="@+id/textView13"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="143"
+        android:text="547"
         android:textAlignment="center" />
 
     <Button
@@ -129,7 +129,6 @@
         android:layout_alignParentStart="true"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="181.41.196.244"
         android:textAlignment="center" />
 
     <TextView
@@ -149,8 +148,8 @@
         android:layout_alignBottom="@+id/textView11"
         android:layout_marginLeft="28dp"
         android:layout_marginStart="28dp"
-        android:layout_toEndOf="@+id/title"
-        android:layout_toRightOf="@+id/title"
+        android:layout_toLeftOf="@+id/headerNumber"
+        android:layout_toStartOf="@+id/headerNumber"
         android:text="0"
         android:textColor="#218718"
         android:textSize="24sp" />
@@ -201,7 +200,7 @@
         android:layout_toRightOf="@+id/textView"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="100" />
+        android:text="30" />
 
     <TextView
         android:id="@+id/textView"

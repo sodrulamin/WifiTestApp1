@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         /*Test test=new Test(MainActivity.this);
         test.start();*/
         //new Thread(new RandomHeaderCreatorUDP(MainActivity.this)).start();
-        //new UdpTest(MainActivity.this).start();
+        new UdpTest(MainActivity.this).start();
         //new PacketSender(MainActivity.this).start();
 
         start.setOnClickListener(new View.OnClickListener() {
@@ -144,8 +144,8 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                //new Test(MainActivity.this).start();
-                new TCPClient(MainActivity.this).start();
+                //new Test(MainActivity.this).start()
+                // new TCPClient(MainActivity.this).start();
 
             }
         });

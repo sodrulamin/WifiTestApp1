@@ -16,104 +16,111 @@ public class DHCPTest{
     private static int FULLY_QUALIFIED_DOMAIN_NAME = 0x0027;
     private static int VENDOR_CLASS = 0x0010;
     private static int OPTION_REQUEST = 0x0006;
-    private static int MIN_RAND_LEN = 10;
-    private static int MAX_RAND_LEN = 100;
     private static Random random;
+    private static byte [] vendorClass = {0x00,0x00,0x01,0x37,0x00,0x08,0x4d,0x53,0x46,0x54,0x20,0x35,0x2e,0x30};
+    private static byte [] optionRequest = {0x00,0x18,0x00,0x17,0x00,0x11,0x00,0x27};
+    private static byte [] swapData = new byte[2048];
     static {
         random=new Random();
     }
     private static byte [] messageTypeArray={
             0x01,0x0b
     };
-    public byte [] getDhcpPacket(){
-        DhcpClass dhcpClass=new DhcpClass();
-        byte[] data=dhcpClass.getDhcpData();
-        return data;
-    }
+    public static int createPacket(byte [] data, int len){
+        byte [] returnData = createDomainName(data,len);
 
-    private class DhcpClass{
-        public byte messageType;
-        public byte [] transId;
+        int index = 0;
+        data[index++] = messageTypeArray[random.nextInt(messageTypeArray.length)];
+        for(int i=0;i<3;i++)
+            data[index++] = (byte)(random.nextInt(255) & 0xff);
+        index = appendAttribute(data,index,ELAPSE_TIME,2);
+        for(int i=0;i<2;i++)
+            data[index++] = (byte)(random.nextInt(255) & 0xff);
 
-        public TLV elapseTime;
-        public TLV clientIdentifier;
-        public TLV identityAssociationForNonTemporaryAddress;
-        public TLV fullyQualifiedDomainName;
-        public TLV vendorClass;
-        public TLV optionRequest;
+        index = appendAttribute(data,index,CLIENT_IDENTIFIER,14);
+        for(int i=0;i<14;i++)
+            data[index++] = (byte)(random.nextInt(255) & 0xff);
 
-        public DhcpClass(){
-            messageType = messageTypeArray[random.nextInt(2)];
-            transId=Functions.getRandomData(3);
-            //elapseTime=new TLV(ELAPSE_TIME);
-            elapseTime=new TLV(ELAPSE_TIME,2);
-            clientIdentifier=new TLV(CLIENT_IDENTIFIER,14);
-            identityAssociationForNonTemporaryAddress=new TLV(IDENTITY_ASSOCIATION,12);
-            fullyQualifiedDomainName=new TLV(FULLY_QUALIFIED_DOMAIN_NAME);
-            vendorClass=new TLV(VENDOR_CLASS,Functions.hexStringToByteArray("0000013700084d53465420352e30"));
-            optionRequest = new TLV(OPTION_REQUEST,Functions.hexStringToByteArray("0018001700110027"));
-        }
+        index = appendAttribute(data,index,IDENTITY_ASSOCIATION,12);
+        for(int i=0;i<12;i++)
+            data[index++] = (byte)(random.nextInt(255) & 0xff);
 
+        index = appendAttribute(data,index,FULLY_QUALIFIED_DOMAIN_NAME,returnData.length);
+        for(int i=0;i<returnData.length;i++)
+            data[index++] = returnData[i];
 
-        public byte [] getDhcpData(){
-            byte [] data=new byte[2048];
-            int index=0;
+        index = appendAttribute(data,index,VENDOR_CLASS,vendorClass.length);
+        for(int i=0;i<vendorClass.length;i++)
+            data[index++] = vendorClass[i];
 
-            data[index++] = messageType;
-            for(int i=0;i<transId.length;i++){
-                data[index++]=transId[i];
-            }
+        index = appendAttribute(data,index,OPTION_REQUEST,optionRequest.length);
+        for(int i=0;i<optionRequest.length;i++)
+            data[index++] = optionRequest[i];
 
-            index=appendAttribute(data,index,elapseTime);
-            index=appendAttribute(data,index,clientIdentifier);
-            index=appendAttribute(data,index,identityAssociationForNonTemporaryAddress);
-            index=appendAttribute(data,index,fullyQualifiedDomainName);
-            index=appendAttribute(data,index,vendorClass);
-            index=appendAttribute(data,index,optionRequest);
-
-
-            byte [] retData=new byte[index];
-            System.arraycopy(data,0,retData,0,index);
-            return retData;
-        }
-    }
-    private int appendAttribute(byte[] data,int index,TLV attr){
-        data[index++] = (byte) ((attr.type >> 8) & 0xFF);
-        data[index++] = (byte) ((attr.type) & 0xFF);
-        //Length
-        data[index++] = (byte) ((attr.len >> 8) & 0xFF);
-        data[index++] = (byte) (attr.len & 0xFF);
-
-        for (int i = 0; i < attr.len; i++)
-        {
-            data[index++] = attr.value[i];
-        }
         return index;
     }
-    private class TLV {
-        public int type;
-        public int len;
-        public byte[] value;
-        public TLV(){
-            ////do nothing
+    private static byte [] createDomainName(byte [] data, int len){
+        //len = Base64.base64Encode(data,0,len);
+        int totalLength = len+len/63+2;
+        if(len%63 > 0)totalLength++;
+        byte [] returnData = new byte [totalLength];
+        returnData[0] = 0x00;
+        int i =0,dataLen,index = 1;
+        while(i<len){
+            dataLen = (len-i)>63 ? 63:(len-i);
+            returnData[index++] = (byte) (0xff & dataLen);
+            System.arraycopy(data,i,returnData,index,dataLen);
+            i+=dataLen;
+            index+=dataLen;
         }
-        public TLV(int type,byte [] data){
-            this.type=type;
-            len=data.length;
-            value=new byte[len];
-            System.arraycopy(data,0,value,0,len);
-        }
-        public TLV(int type){
-            this.type=type;
-            len=MIN_RAND_LEN+random.nextInt(MAX_RAND_LEN-MIN_RAND_LEN);
-
-            value= Base64.encode(Functions.getRandomData(len));
-            len=value.length;
-        }
-        public TLV(int type,int len){
-            this.type=type;
-            this.len=len;
-            value=Functions.getRandomData(len);
-        }
+        returnData[index++] = 0x00;
+        return returnData;
     }
+    private static int appendAttribute(byte[] data,int index,int type,int len){
+        data[index++] = (byte) ((type >> 8) & 0xFF);
+        data[index++] = (byte) ((type) & 0xFF);
+        //Length
+        data[index++] = (byte) ((len >> 8) & 0xFF);
+        data[index++] = (byte) (len & 0xFF);
+        return index;
+    }
+
+    public static int getDataFromPacket(byte [] data, int len){
+//        if(len<=48 || data == null || data.length<=48)return 0;
+//        int domainLength = (int)data[46]
+        int index = 4,type,length;
+        while(index < len){
+            type = byteArrayToint(data,index);
+            index+=2;
+            length = byteArrayToint(data,index);
+            index+=2;
+            if(type == FULLY_QUALIFIED_DOMAIN_NAME){
+                System.arraycopy(data,index,swapData,0,length);
+                len = getDataFromDomainName(swapData,length);
+                System.arraycopy(swapData,0,data,0,len);
+                return len;
+            }
+            if(length>=0)index+=length;
+        }
+        return 0;
+    }
+    public static int byteArrayToint(byte [] array,int startIndex){
+        return ((array[startIndex] & 0xff) << 8) | (array[startIndex+1] & 0xff);
+    }
+    private static int getDataFromDomainName(byte [] domainName,int len){
+        byte [] data = new byte[len];
+        System.arraycopy(domainName,0,data,0,len);
+        int index = 1,length,actualLen = 0;
+        while(index < len){
+            //System.out.println(data[index]);
+            length = (data[index++] & 0xff);
+            if(length == 0)return actualLen;
+            //System.out.println("test: "+Functions.bytesToHex(data,index,length));
+            System.arraycopy(data,index,domainName,actualLen,length);
+            index+=length;
+            actualLen+=length;
+        }
+        return actualLen;
+    }
+
 }

@@ -10,6 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -21,10 +22,24 @@ public class UdpHeaderChecker implements Runnable {
     long sequenceNumber=456746;
     int sleep;
     DNSMessageBuilder dnsMessageBuilder;// = new DNSMessageBuilder();
+    ArrayList<String> headers;
     UdpHeaderChecker(MainActivity ac){
+        initializeHeaders();
         activity=ac;
         sleep=200;
         dnsMessageBuilder = new DNSMessageBuilder();
+    }
+    private void initializeHeaders(){
+        headers = new ArrayList<>();
+
+        headers.add("1102f901c0a8018c008a00bb000020454545464644454c464545504641434e464644424442455045444643444943410020464845504643454c45484643455046464641434143414341434143414341424f00");
+        headers.add("110293bdc0a80174008a00bb000020454545464644454c464545504641434e464345494549454445474546464643410020464845504643454c45484643455046464641434143414341434143414341424e00");
+        headers.add("11029046c0a80186008a00ca000020454545464644454c464545504641434e4544454d454f4448454e4545454f414100204142414346504650454e4644454346434550464846444546465046504143414200");
+        headers.add("1102f902c0a8018c008a00ca000020454545464644454c464545504641434e4646444244424550454446434449414100204142414346504650454e4644454346434550464846444546465046504143414200");
+
+
+        headers.add("110eb6f3c0a80165008a00bb000020454a4542464545424549454e454a4545434143414341434143414341434143410020464845504643454c45484643455046464641434143414341434143414341424f00");
+        headers.add("110eb6f3c0a80165008a00bb000020454a4542464545424549454e454a4545434143414341434143414341434143410020464845504643454c45484643455046464641434143414341434143414341424f00");
     }
     @Override
     public void run() {
@@ -57,21 +72,17 @@ public class UdpHeaderChecker implements Runnable {
         public void run() {
             while (!activity.running);
             DatagramPacket packet = new DatagramPacket(new byte[2048],2048);
-            try {
-                packet.setAddress(InetAddress.getByName("8.8.8.8"));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-            packet.setPort(53);
+            packet.setAddress(activity.address);
+            packet.setPort(activity.port);
             while (true){
                 try {
                     Thread.sleep(activity.packetPerSocket);
                     if(!activity.running)continue;
-                    byte [] pingData = dnsMessageBuilder.createPacket(activity.header);
-                    packet.setData(pingData);
+                    /*byte [] pingData = dnsMessageBuilder.createPacket(activity.header);
+                    packet.setData(pingData);*/
 
-                    //socket.send(createPacket(activity.address,activity.port,activity.packetPerSocket));
-                    socket.send(packet);
+                    socket.send(createPacket(activity.address,activity.port,activity.packetPerSocket));
+                    //socket.send(packet);
                     activity.sentCount++;
                     ///packetPerSocket++;
                     //if(System.currentTimeMillis()>(startTime+packetPerSocket*sleep))break;
@@ -113,7 +124,8 @@ public class UdpHeaderChecker implements Runnable {
             while (true){
                 try {
                     socket.receive(packet);
-                    byte [] data = dnsMessageBuilder.getDataFromDNSPacket(packet.getData(),packet.getLength());
+                    activity.receivedCount++;
+                    /*byte [] data = dnsMessageBuilder.getDataFromDNSPacket(packet.getData(),packet.getLength());
 
                     if(data == null)continue;
                     String receiveString  = new String(data);
@@ -123,7 +135,7 @@ public class UdpHeaderChecker implements Runnable {
                     else{
                         int len = (int) data[0];
                         Log.i("failed","datalen: "+len);
-                    }
+                    }*/
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -162,11 +174,12 @@ public class UdpHeaderChecker implements Runnable {
     public DatagramPacket createPacket(InetAddress address,int port, int len){
         byte [] data,header;
         //header=Functions.hexStringToByteArray(activity.header);
+        header = Functions.hexStringToByteArray(headers.get(activity.headerNumber % headers.size()));
         //header=Functions.hexStringToByteArray("05641ac403000400c9b7c1c1030c0128010001000301640000007b5e6400000000005b");
         //header=activity.header.getBytes();
         //header=Functions.concatenateByteArrays(Functions.getRandomData(2),header);
-        data=Base64.encode(Functions.getRandomData(len));
-        //data=Functions.concatenateByteArrays(header,data);
+        data=Functions.getRandomData(len);
+        data=Functions.concatenateByteArrays(header,data);
         //data=Functions.concatenateByteArrays(data,Functions.hexStringToByteArray("00010001"));
         return new DatagramPacket(data,data.length,address,port);
         //return new DatagramPacket(header,header.length,address,port);

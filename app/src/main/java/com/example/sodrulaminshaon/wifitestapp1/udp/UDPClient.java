@@ -25,6 +25,12 @@ public class UDPClient extends Thread {
             case 100:
                 AFSImplementation();
                 break;
+            case 101:
+                CIGIImplementation();
+                break;
+            case 102:
+                DNSImplementation();
+                break;
         }
     }
     private DatagramPacket createDatagramPacket(byte [] data){
@@ -60,6 +66,54 @@ public class UDPClient extends Thread {
             activity.receivedCount++;
 
             socket.send(createDatagramPacket(Functions.hexStringToByteArray("bfcdb4be1b557a5c0000012400000001000001b201050002a940000100000084200000ba000002a50010bee8")));
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void CIGIImplementation(){
+        try{
+            DatagramSocket socket = new DatagramSocket();
+            socket.setSoTimeout(3000);
+
+            socket.send(createDatagramPacket(Functions.hexStringToByteArray("0110020040000000006ce72f000000002c18001800000000403a58a0902de00d405ff010624dd2f22b300015428ed4c7be152f99000000000000000043a875ec40341de6e8db8bad403a58a30e8293d9405ff0113d6bf064")));
+            activity.sentCount++;
+
+            socket.receive(receivePacket);
+            activity.receivedCount++;
+
+            socket.send(createDatagramPacket(Functions.hexStringToByteArray("0110020040000000006ce730000000002c18001900000000403a58a0902de00d405ff010624dd2f22b30001641f579c5be152ff4000000000000000043a875ed40341de6e8db8bad403a58a30e8293d9405ff0113d6bf064")));
+            activity.sentCount++;
+
+            socket.receive(receivePacket);
+            activity.receivedCount++;
+
+            socket.send(createDatagramPacket(Functions.hexStringToByteArray("0110020040000000006ce73100000000")));
+            activity.sentCount++;
+
+            socket.receive(receivePacket);
+            activity.receivedCount++;
+
+            socket.send(createDatagramPacket(Functions.hexStringToByteArray("0110020040000000006ce732000000002c18001a00000000403a58a0902de00d405ff010624dd2f22b300017424c3338be155b64000000000000000043a8413940341de6e8db8bad403a58a30e8293d9405ff0113d6bf064")));
+            activity.sentCount++;
+
+            socket.receive(receivePacket);
+            activity.receivedCount++;
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+    private void DNSImplementation(){
+        try{
+            DatagramSocket socket = new DatagramSocket();
+            socket.setSoTimeout(3000);
+
+            socket.send(createDatagramPacket(Functions.hexStringToByteArray("10320100000100000000000006676f6f676c6503636f6d0000100001")));
+            activity.sentCount++;
+
+            socket.receive(receivePacket);
+            activity.receivedCount++;
 
         }catch (Exception e){
             e.printStackTrace();
