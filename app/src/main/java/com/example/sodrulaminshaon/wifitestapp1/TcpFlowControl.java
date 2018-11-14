@@ -19,7 +19,7 @@ class TcpFlowControl implements Runnable {
     @Override
     public void run() {
         while (!activity.running);
-        int totalActiveSocket=activity.packetPerSocket;
+        int totalActiveSocket=activity.packetSize;
         packetSize=1000/totalActiveSocket;
         if(packetSize%20 > 0){
             packetSize= ((int) Math.ceil(((double)packetSize)/20.0))*20;

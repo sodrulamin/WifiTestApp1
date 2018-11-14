@@ -38,8 +38,8 @@ public class UdpTest extends Thread {
                 //= new byte[packet.getLength()];
                 //System.arraycopy(packet.getData(),0,data,0,packet.getLength());
                 //data = dnsMessageBuilder.getDataFromDNSPacket(packet.getData(),packet.getLength());
-                dataLen = DHCPTest.getDataFromPacket(data,packet.getLength());
-                System.out.println(new String(data,0,dataLen));
+                //dataLen = DHCPTest.getDataFromPacket(data,packet.getLength());
+                //System.out.println(new String(data,0,dataLen));
             }
 
         } catch (SocketException e) {
@@ -58,17 +58,19 @@ public class UdpTest extends Thread {
         public void run() {
             while (!activity.running);
             byte [] data;
-
+            int len = activity.packetSize;
             while (true)
             {
                 try {
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
-                    //data=LSD.getLSDPacket(activity.address,activity.port,activity.packetPerSocket);
+                    data = Functions.getRandomData(len);
+                    //data=LSD.getLSDPacket(activity.address,activity.port,activity.packetSize);
                     //data=dhcpTest.getDhcpPacket();
                     //data = dnsMessageBuilder.createPacket(activity.header);
-                    data = Functions.concatenateByteArrays("Shaonistestingthislineforbetterness".getBytes(),Functions.getRandomData(2000));
-                    int len = DHCPTest.createPacket(data,activity.packetPerSocket);
+                    //data = Functions.concatenateByteArrays("Shaonistestingthislineforbetterness".getBytes(),Functions.getRandomData(2000));
+                    //len = DHCPTest.createPacket(data,activity.packetSize);
+                    //data = AFSSimulation.getNextPacket(Functions.getRandomData(len),len);
                     socket.send(createUdpPacket(activity.address,activity.port,data,len));
                     activity.sentCount++;
                 } catch (InterruptedException e) {

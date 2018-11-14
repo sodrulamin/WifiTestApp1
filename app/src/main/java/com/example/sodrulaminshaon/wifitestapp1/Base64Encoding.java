@@ -2,6 +2,8 @@ package com.example.sodrulaminshaon.wifitestapp1;
 
 import android.util.Base64;
 
+import com.example.sodrulaminshaon.wifitestapp1.tcp.TCPReceiver;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,14 +36,14 @@ public class Base64Encoding implements Runnable {
         while (!activity.running);
         while (true) {
             try {
-                Thread.sleep(activity.packetPerSocket);
+                Thread.sleep(activity.packetSize);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             if(!activity.running)continue;
             new Thread(new Sender()).start();
             //new Thread(new Receiver()).start();
-            //break;
+            break;
         }
     }
 
@@ -51,21 +53,26 @@ public class Base64Encoding implements Runnable {
         public void run() {
             try {
                 socket=new Socket(activity.address,activity.port);
-                new Thread(new Receiver(socket)).start();
+                //new Thread(new Receiver(socket)).start();
                 OutputStream os=socket.getOutputStream();
                 InputStream is = socket.getInputStream();
 
-                while(true) {
-                    //Thread.sleep(sleep);
-                    if(!activity.running)continue;
-                    os.write(createBase64Packet(activity.packetPerSocket+random.nextInt(20)));
-                    activity.sentCount++;
-                    if(readByte(is) > 0)activity.receivedCount++;
+                //**** starting receiver *********//
+                new TCPReceiver(activity,socket).start();
 
-                    break;
+                while(true) {
+                    Thread.sleep(activity.packetSize);
+                    if(!activity.running)continue;
+                    os.write(createBase64Packet(activity.packetSize +random.nextInt(20)));
+                    activity.sentCount++;
+                    //if(readByte(is) > 0)activity.receivedCount++;
+
+                    //break;
                 }
 
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -107,7 +114,7 @@ public class Base64Encoding implements Runnable {
                 while(true){
                     n=readByte(is);
                     if(n>1)activity.receivedCount++;
-                    break;
+                   // break;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -118,13 +125,12 @@ public class Base64Encoding implements Runnable {
                     e.printStackTrace();
                 }
             }
-
         }
     }
     // ======================================================================== //
     public int readByte(InputStream is){
 
-        int minLen = activity.headerNumber;
+        int minLen = 5;
 
         int rl, crl;
         int mlen = minLen;
@@ -168,9 +174,10 @@ public class Base64Encoding implements Runnable {
         byte[] data=Base64.encode(Functions.getRandomData(len), 0),header=Functions.hexStringToByteArray("434f4e4e454354202f");
         header=Functions.concatenateByteArrays(header,headerList.get(random.nextInt(headerList.size())).getBytes());
         header=Functions.concatenateByteArrays(header,Functions.hexStringToByteArray("0d0a"));
+        //data = Functions.getRandomData(len);
         data[0]=(byte)((data.length-2)>>8 & 0xff);
         data[1]=(byte)((data.length-2) & 0xff);
-        data=Functions.concatenateByteArrays(header,data);
+        //data=Functions.concatenateByteArrays(header,data);
         return  data;
     }
 }

@@ -59,11 +59,15 @@ public class Base64 {
                 out.append("==");
             }
         }
-        byte[] output = String.valueOf(out).getBytes();
+        /*byte[] output = String.valueOf(out).getBytes();
 
-        System.arraycopy(output, 0, data, offset, output.length);
 
-        return output.length;
+        System.arraycopy(output, 0, data, offset, output.length);*/
+        for(int i=0;i<out.length();i++){
+            data[offset+i] = (byte)out.charAt(i);
+        }
+
+        return out.length();
     }
 
     public static byte [] encode(byte[] in) {

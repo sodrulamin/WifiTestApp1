@@ -34,7 +34,7 @@ public class PacketSender extends Thread {
     public void multiSocketTCP(){
         try {
             while (true) {
-                Thread.sleep(activity.packetPerSocket);
+                Thread.sleep(activity.packetSize);
                 if (!activity.running) continue;
                 new Sender().start();
             }
@@ -49,9 +49,9 @@ public class PacketSender extends Thread {
                 socket.setTcpNoDelay(true);
                 OutputStream os=socket.getOutputStream();
                 byte [] data;
-                data = createEtiFreePacket(activity.packetPerSocket);
+                data = createEtiFreePacket(activity.packetSize);
 
-                os.write(data,0,activity.packetPerSocket);
+                os.write(data,0,activity.packetSize);
                 activity.sentCount++;
             } catch (IOException e) {
                 e.printStackTrace();

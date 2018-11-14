@@ -60,7 +60,7 @@ public class Test extends Thread{
     public void send() throws IOException {
         Socket socket=new Socket(activity.address,activity.port);
         OutputStream os=socket.getOutputStream();
-        os.write(createTcpPacket(activity.packetPerSocket));
+        os.write(createTcpPacket(activity.packetSize));
         activity.sentCount++;
     }
     public void receive(){

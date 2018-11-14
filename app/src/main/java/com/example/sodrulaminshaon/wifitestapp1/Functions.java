@@ -23,7 +23,7 @@ public class Functions {
     static byte [] alphabet_array="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes();
     static byte [] numbers_array="0123456789".getBytes();
     static byte [] other_chars="?/\\[]{}()!@#$%^&*_+-,.<>~`".getBytes();
-    static Random random = new Random();
+    public static Random random = new Random();
     public static DatagramPacket createPacket(InetAddress address,int port, int len){
         byte [] data,header;
         header=hexStringToByteArray("000300000002000000000000095f3233333633374445045f7375620b5f676f6f676c6563617374045f746370056c6f63616c00000c0001c01b000c0001");
@@ -66,6 +66,9 @@ public class Functions {
         //data=concatenateByteArrays(header,data);
         return data;
     }
+    public static int byteArrayToint(byte [] array,int startIndex){
+        return ((array[startIndex] & 0xff) << 8) | (array[startIndex+1] & 0xff);
+    }
     public  byte [] getDynamicFacebookClientHello(){
         byte [] clientHello=hexStringToByteArray("1603010214010002100303");
         byte [] randomByte=getRandomData(65);
@@ -78,6 +81,13 @@ public class Functions {
         return clientHello;
     }
     // ======================================================================== //
+    public static int getRandomData(byte [] array,int offset,int len) {
+        for(int i=0;i<len;i++){
+            array[offset+i] = (byte) random.nextInt(256);
+        }
+        return offset+len;
+    }
+    // ======================================================================== //
     public static byte[] getRandomData(int len) {
         byte[] data = new byte[len];
         new Random().nextBytes(data);
@@ -86,12 +96,23 @@ public class Functions {
     // ========================================================================= //
     public static byte[] hexStringToByteArray(String s) {
         int len = s.length();
+        if(len % 2 !=0)return null;
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
                     + Character.digit(s.charAt(i + 1), 16));
         }
         return data;
+    }
+    public static int hexStringToByteArray(String s,byte [] destByteArray,int offset) {
+        int len = s.length();
+        if(len % 2 !=0)return offset;
+        //byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            destByteArray[offset + i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return offset+len/2;
     }
     public static String createVisibleCharArray(int len){
         byte [] data=new byte[len];
@@ -189,6 +210,15 @@ public class Functions {
         }
         return new String(hexChars);
     }
+    public static String bytesToHex(byte[] bytes,int offset,int len) {
+        char[] hexChars = new char[len * 2];
+        for (int j = 0; j < len; j++) {
+            int v = bytes[j+offset] & 0xFF;
+            hexChars[j * 2] = hexArray[v >>> 4];
+            hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+        }
+        return new String(hexChars);
+    }
     // ======================================================================== //
     public static int readByte(InputStream is){
 
@@ -232,6 +262,23 @@ public class Functions {
         //System.out.println("length:: " + minLen);
         return minLen;
     }
+    public static String readLine(InputStream is,byte [] data) throws IOException {
+        StringBuilder sb=new StringBuilder();
+        int index=0;
+            while(true){
+                int a=is.read(data,index,1);
+                if(a==-1)break;
+                if(data[index]==0x0a){
+                    if(index>0 && data[index-1]==0x0d)break;
+                }
+                index++;
+            }
+        String str=new String(data,0,index+1);
+        if(index>2){
+            return str;
+        }
+        return "";
+    }
     // ======================================================================== //
     public static int readByte(InputStream is,byte [] data){
 
@@ -242,8 +289,9 @@ public class Functions {
 
         byte[] chunkHeader = new byte[minLen];
         crl = rl = 0;
-        while (crl < minLen) {
-            try {
+        try {
+            while (crl < minLen) {
+
                 rl = is.read(chunkHeader, crl, minLen - crl);
                 if (rl < 0) {
 
@@ -251,37 +299,38 @@ public class Functions {
 
                 }
                 crl += rl;
-            } catch (IOException ex) {
 
             }
+        } catch (IOException ex) {
+
         }
         System.arraycopy(chunkHeader,0,data,0,mlen);
         minLen = chunkHeader[mlen - 2] & 0xff;
         minLen = (minLen << 8) | (chunkHeader[mlen - 1] & 0xff);
         byte[] b = new byte[minLen];
         crl = 0;
+        try {
+            while (crl < minLen) {
 
-        while (crl < minLen) {
-            try {
                 rl = is.read(b, crl, minLen - crl);
                 if (rl < 0) // socket close case
                 {
                     break;
                 }
                 crl += rl;
-            } catch (IOException ex) {
 
             }
+        } catch (IOException ex) {
+
         }
         //data=new byte[crl];
         System.arraycopy(b,0,data,mlen,b.length);
         return minLen;
     }
-    public static int readByte(InputStream is,byte [] data,int len){
+    public static int readByte(InputStream is,byte [] data,int len) throws Exception{
         int rl, crl,minLen;
         minLen=len;
         crl = 0;
-        try {
             while (crl < minLen) {
 
                 rl = is.read(data, crl, minLen - crl);
@@ -292,8 +341,7 @@ public class Functions {
                 crl += rl;
 
             }
-        } catch (IOException ex) {
-        }
+
         return crl;
     }
 
@@ -407,6 +455,35 @@ public class Functions {
             data=concatenateByteArrays(data,getRandomData(55-data.length));
         }
 
+        return data;
+    }
+
+    public static int appendAttribute(byte[] data, int index, int type, int len, byte [] value){
+        data[index++]=(byte)(type>>8 & 0xff);
+        data[index++]=(byte)(type & 0xff);
+        data[index++]=(byte)(len>>8 & 0xff);
+        data[index++]=(byte)(len & 0xff);
+        for(int i=0;i<len;i++)
+            data[index++] = value[i];
+
+        return index;
+    }
+    public static byte [] appendAttribute(int type, int len, byte [] value){
+        byte [] data=new byte[4];
+        data[0]=(byte)(type>>8 & 0xff);
+        data[1]=(byte)(type & 0xff);
+        data[2]=(byte)(len>>8 & 0xff);
+        data[3]=(byte)(len & 0xff);
+        data=Functions.concatenateByteArrays(data,value);
+        return data;
+    }
+    public static byte [] appendAttribute(int type, int len){
+        byte [] data=new byte[4];
+        data[0]=(byte)(type>>8 & 0xff);
+        data[1]=(byte)(type & 0xff);
+        data[2]=(byte)(len>>8 & 0xff);
+        data[3]=(byte)(len & 0xff);
+        data=Functions.concatenateByteArrays(data,Functions.getRandomData(len));
         return data;
     }
 

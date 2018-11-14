@@ -26,7 +26,7 @@ public class TlsMultisocket implements Runnable {
             }
             Thread.sleep(2500);
             new Thread(new Sender()).start();
-            Thread.sleep(activity.packetPerSocket * 250);
+            Thread.sleep(activity.packetSize * 250);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

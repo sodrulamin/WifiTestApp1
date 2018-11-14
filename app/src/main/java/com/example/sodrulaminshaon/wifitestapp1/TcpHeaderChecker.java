@@ -1,11 +1,8 @@
 package com.example.sodrulaminshaon.wifitestapp1;
 
-import com.example.sodrulaminshaon.wifitestapp1.wifitest.RTLS;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.Socket;
 
 /**
@@ -24,17 +21,21 @@ public class TcpHeaderChecker implements Runnable{
         while(!activity.running);
 
         try {
-            //while (true){
-            for(int i=0; i<1; i++){
-                Thread.sleep(activity.packetPerSocket);
+            while (true){
+            //for(int i=0; i<1; i++){
+                Thread.sleep(50);
                 if(!activity.running)continue;
-                Socket socket= RTLS.createSSLSocket2(activity.address,activity.port);//new Socket(activity.address,activity.port);
+                Socket socket;
+                //socket= RTLS.createSSLSocket2(activity.address,activity.port);
+                socket = new Socket(activity.address,activity.port);
                 new Thread(new Sender(socket)).start();
                 new Thread(new Receiver(socket)).start();
-                //Thread.sleep(Math.max(activity.packetPerSocket*packetSize-350,10));
+                Thread.sleep(activity.packetSize *activity.headerNumber);
                 //break;
             }
         } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
@@ -50,10 +51,10 @@ public class TcpHeaderChecker implements Runnable{
                 socket.setTcpNoDelay(true);
                 OutputStream os=socket.getOutputStream();
                 //while (true) {
-                for(int i = 0;i<10;i++){
-                    Thread.sleep(activity.packetPerSocket);
+                for(int i = 0;i<activity.headerNumber;i++){
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
-                    os.write(createTcpPacket(activity.packetPerSocket));
+                    os.write(createTcpPacket(activity.packetSize));
                     activity.sentCount++;
                 }
             } catch (IOException e) {
@@ -86,13 +87,15 @@ public class TcpHeaderChecker implements Runnable{
 
     public byte[] createTcpPacket(int len){
         byte[] data,header;
-        //header=Functions.hexStringToByteArray("474554202f636f6e6e65637420485454502f312e310d0a486f73743a20636865636b2e676f6f676c657a69702e6e65740d0a436f6e6e656374696f6e3a206b6565702d616c6976650d0a557365722d4167656e743a0d0a4163636570742d456e636f64696e673a20677a69702c206465666c6174650d0a0d0a");
+        header=Functions.hexStringToByteArray("ffffffffffffffffffffffffffffffff002d0104feb000b40a0000021002060104000100010202800002020200");
         //header=getHttpHeader();
         //header=activity.header.getBytes();
-        data= Functions.getRandomData(len);//com.example.sodrulaminshaon.wifitestapp1.Base64.encode(Functions.getRandomData(len));
+        data= Functions.getRandomData(len);
+        //data = Base64.encode(data);
         data[0]=(byte)((data.length-2)>>8 & 0xf);
         data[1]=(byte)((data.length-2) & 0xff);
-        //data=Functions.concatenateByteArrays(header,data);
+
+        data=Functions.concatenateByteArrays(header,data);
         return data;
         //return header;
     }
@@ -110,9 +113,7 @@ public class TcpHeaderChecker implements Runnable{
             try {
                 rl = is.read(chunkHeader, crl, minLen - crl);
                 if (rl < 0) {
-
                     break;
-
                 }
                 crl += rl;
             } catch (IOException ex) {

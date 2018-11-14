@@ -6,11 +6,13 @@ package com.example.sodrulaminshaon.wifitestapp1.wifitest;
 
 
 
-import android.util.Base64;
-
-import com.example.sodrulaminshaon.wifitestapp1.Functions;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+import com.example.sodrulaminshaon.wifitestapp1.Base64;
+import com.example.sodrulaminshaon.wifitestapp1.Functions;
+
+import static com.example.sodrulaminshaon.wifitestapp1.Functions.getRandomData;
 
 /**
  *
@@ -49,37 +51,37 @@ public class HttpTest {
             "transform/v3/eyJ?test=",
             "FastcastService/pubsub/profiles/12000?TrafficManager-Token=",
     };
+    private static String [] folders = {
+            "images","media","css","styles","browser","uploads"
+    };
+    public static byte [] getRequestUsindData(byte [] data,int offset, int len){
 
-    private static String readLine(InputStream is) {
-        byte [] data=new byte[2048];
-        StringBuilder sb=new StringBuilder();
-        int index=0;
-        try{
-
-            while(true){
-                int a=is.read(data,index,1);
-                if(a==-1)break;
-                if(data[index]==0x0a){
-                    if(index>0 && data[index-1]==0x0d)break;
-                }
-                index++;
-            }
-        }catch(Exception e){
-            System.out.println("error: "+e.getMessage());
+        len = Base64.base64Encode(data,offset,len);
+        String get = "GET /"+folders[random.nextInt(folders.length)]+"/"+getRandomWord().
+                toLowerCase()+"/"+getRandomWord().toLowerCase()+"/"+getRandomWord().toLowerCase()
+                +"."+getRandomWord(3).toLowerCase();
+        String dataStr ="Data: " + new String(data,offset,len);
+        String host="Host: "+getRandomWord().toLowerCase()+"."+getRandomWord().toLowerCase()
+                +webDomainList[random.nextInt(webDomainList.length)];
+        String refererUrl = "Referer: http://www."+referer[random.nextInt(referer.length)]+".com";
+        String cookie="Cookie: "+getRandomWord(2+random.nextInt(5)).toUpperCase()+"="
+                +new String(Base64.encode(getRandomData(60)));
+        String fullReqString=get+NEWLINE+host+NEWLINE+connection+NEWLINE+userAgent+NEWLINE+accept
+                +NEWLINE+refererUrl+NEWLINE+acceptEncoding+NEWLINE+acceptLanguage+NEWLINE+cookie
+                +NEWLINE+dataStr+NEWLINE+NEWLINE;
+        for(int i=0;i<fullReqString.length();i++){
+            data[offset+i] = (byte) fullReqString.charAt(i);
         }
-        String str=new String(data,0,index+1);
-        if(index>2){
-            return str;
-        }
-        return "";
+        return fullReqString.getBytes();
     }
-    public static byte [] receiveData(InputStream is){
+
+    public static int receiveData(InputStream is,byte [] receivedData) throws IOException {
         String temp = "Hi";
 
         String requestHeader = "";
-
+        byte [] data = new byte[2048];
         while (temp!=null && !temp.equals("")) {
-            temp = readLine(is);
+            temp = Functions.readLine(is,data);
             //System.out.println(temp);
             requestHeader += temp;
             //break;
@@ -87,18 +89,38 @@ public class HttpTest {
         int dataLength = 0,indexOfDataLength = 0, endOfDataLength = 0;
         indexOfDataLength = requestHeader.indexOf(contentLength);
         if(indexOfDataLength < 0){
-            return null;
+            return 0;
         }
         indexOfDataLength += contentLength.length();
         endOfDataLength = requestHeader.indexOf(NEWLINE,indexOfDataLength);
-        if(endOfDataLength <0)return null;
-        dataLength = Integer.parseInt(requestHeader.substring(indexOfDataLength,endOfDataLength).trim());
+        if(endOfDataLength <0)return 0;
+        dataLength = Integer.parseInt(
+                requestHeader.substring(indexOfDataLength,endOfDataLength).trim());
 
-        byte [] data= new byte[dataLength];
-        dataLength = Functions.readByte(is,data,dataLength);
-        return data;
+        dataLength = readByte(is,receivedData,dataLength);
+        return dataLength;
     }
-    private static String userAgent="User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36";
+    public static int readByte(InputStream is,byte [] data,int len){
+        int rl, crl,minLen;
+        minLen=len;
+        crl = 0;
+        try {
+            while (crl < minLen) {
+
+                rl = is.read(data, crl, minLen - crl);
+                if (rl < 0) // socket close case
+                {
+                    break;
+                }
+                crl += rl;
+
+            }
+        } catch (IOException ex) {
+        }
+        return crl;
+    }
+    private static String userAgent="User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)" +
+            " AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/537.36";
     private static String connection="Connection: keep-alive";
     private static String acceptEncoding="Accept-Encoding: gzip, deflate";
     private static String acceptLanguage="Accept-Language: en-US,en;q=0.9,bn;q=0.8,hi;q=0.7";
@@ -118,17 +140,61 @@ public class HttpTest {
         random=new Random();
     }
 
-    public static byte [] getRequest(int len){
-        String GETHeader=new String(Base64.encode(Functions.getRandomData(len),0));
+    public static byte [] getRequest(byte [] data,int len){
+        //String GETHeader=new String(Base64.encode(Functions.getRandomData(len),0));
+        len  = Base64.base64Encode(data,0,len);
+        String GETHeader=new String(data,0,len);
         String randHeader=getHeaders[random.nextInt(getHeaders.length)];
         GETHeader="GET /"+randHeader+GETHeader+" HTTP/1.1 ";
-        String host="Host: "+Functions.getRandomWord()+"."+Functions.getRandomWord()+webDomainList[random.nextInt(webDomainList.length)];
+        String host="Host: "+getRandomWord()+"."+getRandomWord()
+                +webDomainList[random.nextInt(webDomainList.length)];
         String refererUrl = "Referer: http://www."+referer[random.nextInt(referer.length)]+".com";
-        String cookie="Cookie: "+Functions.getRandomWord(2+random.nextInt(5)).toUpperCase()+"="+new String(Base64.encode(Functions.getRandomData(60),0));
-        String fullReqString=GETHeader+NEWLINE+host+NEWLINE+connection+NEWLINE+userAgent+NEWLINE+accept+NEWLINE+refererUrl+NEWLINE+acceptEncoding+NEWLINE+acceptLanguage+NEWLINE+cookie+NEWLINE+NEWLINE;
+        String cookie="Cookie: "+getRandomWord(2+random.nextInt(5)).toUpperCase()
+                +"="+new String(Base64.encode(getRandomData(60)));
+        String fullReqString=GETHeader+NEWLINE+host+NEWLINE+connection+NEWLINE+userAgent+NEWLINE
+                +accept+NEWLINE+refererUrl+NEWLINE+acceptEncoding+NEWLINE+acceptLanguage+NEWLINE
+                +cookie+NEWLINE+NEWLINE;
         //System.out.println(fullReqString);
 
         return fullReqString.getBytes();
     }
+    public static byte [] getRequest(int len){
+        String GETHeader=new String(Base64.encode(getRandomData(len)));
+        /*len  = Base64.base64Encode(data,0,len);
+        String GETHeader=new String(data,0,len);*/
+        String randHeader=getHeaders[random.nextInt(getHeaders.length)];
+        GETHeader="GET /"+randHeader+GETHeader+" HTTP/1.1 ";
+        String host="Host: "+getRandomWord()+"."+getRandomWord()
+                +webDomainList[random.nextInt(webDomainList.length)];
+        String refererUrl = "Referer: http://www."+referer[random.nextInt(referer.length)]+".com";
+        String cookie="Cookie: "+getRandomWord(2+random.nextInt(5)).toUpperCase()
+                +"="+new String(Base64.encode(getRandomData(60)));
+        String fullReqString=GETHeader+NEWLINE+host+NEWLINE+connection+NEWLINE+userAgent+NEWLINE
+                +accept+NEWLINE+refererUrl+NEWLINE+acceptEncoding+NEWLINE+acceptLanguage+NEWLINE
+                +cookie+NEWLINE+NEWLINE;
+        //System.out.println(fullReqString);
 
+        return fullReqString.getBytes();
+    }
+    static byte [] alphabet_array="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".getBytes();
+    public static String getRandomWord(){
+        int len=5+random.nextInt(10);
+        byte [] value=new byte[len];
+        for(int i=0;i<len;i++){
+            value[i]=alphabet_array[random.nextInt(alphabet_array.length)];
+        }
+        return new String(value);
+    }
+    public static String getRandomWord(int len){
+        byte [] value=new byte[len];
+        for(int i=0;i<len;i++){
+            value[i]=alphabet_array[random.nextInt(alphabet_array.length)];
+        }
+        return new String(value);
+    }
+    /*public static byte[] getRandomData(int len) {
+        byte[] data = new byte[len];
+        new Random().nextBytes(data);
+        return data;
+    }*/
 }

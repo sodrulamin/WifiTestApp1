@@ -42,7 +42,7 @@ public class TcpMultiSocket implements Runnable {
                     sockets[i].setTcpNoDelay(true);
                 }
                 while (true) {
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
                     OutputStream os=sockets[activity.sentCount%sockets.length].getOutputStream();
                     os.write(Functions.createTcpPacket(new Random().nextInt(20)));

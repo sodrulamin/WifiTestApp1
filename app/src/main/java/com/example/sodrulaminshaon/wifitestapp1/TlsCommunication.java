@@ -3,15 +3,9 @@ package com.example.sodrulaminshaon.wifitestapp1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.Random;
-
-import javax.net.ssl.HandshakeCompletedListener;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
-import javax.net.ssl.SSLSocketFactory;
 
 import static com.example.sodrulaminshaon.wifitestapp1.Functions.*;
 
@@ -35,7 +29,7 @@ public class TlsCommunication implements Runnable {
                 Socket socket = new Socket(activity.address, 443);
                 //new Thread(new Sender(socket)).start();
                 new Thread(new Receiver(socket)).start(); // sender started inside receiver
-                //Thread.sleep(activity.packetPerSocket * 250);
+                //Thread.sleep(activity.packetSize * 250);
                 break;
             }
         } catch (IOException e) {
@@ -61,7 +55,7 @@ public class TlsCommunication implements Runnable {
                 OutputStream os=socket.getOutputStream();
                 Thread.sleep(1000);
                 while (true){
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
                     os.write(getApplicationData(len+new Random().nextInt(150)));
                     activity.sentCount++;

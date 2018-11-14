@@ -3,11 +3,8 @@ package com.example.sodrulaminshaon.wifitestapp1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetAddress;
 import java.net.MalformedURLException;
-import java.net.Socket;
 import java.net.URL;
-import java.net.UnknownHostException;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -49,9 +46,9 @@ public class DomainFronting implements Runnable{
             try {
                 OutputStream os=socket.getOutputStream();
                 while (true) {
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
-                    os.write(createTcpPacket(activity.packetPerSocket));
+                    os.write(createTcpPacket(activity.packetSize));
                     activity.sentCount++;
                 }
             } catch (IOException e) {

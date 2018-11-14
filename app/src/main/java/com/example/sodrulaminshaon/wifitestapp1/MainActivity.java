@@ -10,11 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.sodrulaminshaon.wifitestapp1.etisalatfree.MultiSocket;
-import com.example.sodrulaminshaon.wifitestapp1.etisalatfree.PacketSender;
-import com.example.sodrulaminshaon.wifitestapp1.etisalatfree.Test;
-import com.example.sodrulaminshaon.wifitestapp1.tcp.TCPClient;
-import com.example.sodrulaminshaon.wifitestapp1.wifitest.UdpTest;
+import com.example.sodrulaminshaon.wifitestapp1.tcp.TCPTest;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -35,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     public int sentCount=0,receivedCount=0;
     public boolean running;
     public InetAddress address,address1;
-    public int port,packetPerSocket,len,headerNumber;
+    public int port, packetSize,len,headerNumber;
     public String header,filePath;
     private static final int FILE_SELECT_CODE = 1;
     public TextView networkDetails;
@@ -79,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
         //Button fileChooserButton=(Button)findViewById(R.id.fileChooser);
         //new ConnectivityChecker(MainActivity.this).start();
         new Thread(new screenController()).start();
-        //new Thread(new ExactSkype(MainActivity.this)).start();
+        new Thread(new StunSimulator(MainActivity.this)).start();
         //new Thread(new UdpHeaderChecker(MainActivity.this)).start();
         //new Thread(new TlsCommunication(MainActivity.this)).start();
         //new Thread(new TlsMultisocket(MainActivity.this)).start();
@@ -106,13 +102,16 @@ public class MainActivity extends AppCompatActivity {
         //new Thread(new HttpsClient()).start();
         /*MultiSocket ms=new MultiSocket(MainActivity.this);
         ms.start();*/
-       /* PortFinder pf=new PortFinder(MainActivity.this);
+        /*PortFinder pf=new PortFinder(MainActivity.this);
         pf.start();*/
         /*Test test=new Test(MainActivity.this);
         test.start();*/
         //new Thread(new RandomHeaderCreatorUDP(MainActivity.this)).start();
-        new UdpTest(MainActivity.this).start();
+        //new UdpTest(MainActivity.this).start();
         //new PacketSender(MainActivity.this).start();
+        //new NewTelSImulation(MainActivity.this).start();
+        //new TCPTest(MainActivity.this).start();
+        //new TeamViwerSimulation(MainActivity.this).start();
 
         start.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     alertDialog.show();
                     return;
                 }*/
-                if(netDetector == null)
+                //if(netDetector == null)
                 {
                     netDetector = new ConnectivityChecker(MainActivity.this);
                     netDetector.start();
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 port=Integer.parseInt(portEditText.getText().toString());
                 headerNumber=Integer.parseInt(headerNumberEditText.getText().toString());
                 //port=24434;
-                packetPerSocket=Integer.parseInt(packetCountEditText.getText().toString());
+                packetSize =Integer.parseInt(packetCountEditText.getText().toString());
                 header=headerEditText.getText().toString();
                 try {
                     address=InetAddress.getByName(ipEditText.getText().toString());
@@ -145,7 +144,8 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 //new Test(MainActivity.this).start()
-                // new TCPClient(MainActivity.this).start();
+                //new TCPClient(MainActivity.this).start();
+                //new UDPClient(MainActivity.this).start();
 
             }
         });
@@ -186,16 +186,11 @@ public class MainActivity extends AppCompatActivity {
     private void chooseFromLocalDrive() {
         Uri uri = Uri.parse(Environment.getExternalStorageDirectory().getPath());
         //Uri uri = Uri.parse(getFilesDir().getPath());
-
         Intent intent = new Intent(MainActivity.this, LocalFileImportActivity.class);
         intent.putExtra(LocalFileImportActivity.START_PATH, uri + "/");
-
 //        Toast.makeText(getActivity(), uri.toString(), Toast.LENGTH_SHORT).show();
         intent.putExtra(LocalFileImportActivity.CAN_SELECT_DIR, true);
-
         startActivityForResult(intent, FILE_SELECT_CODE);
-
-
     }
 
     @Override

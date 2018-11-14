@@ -1,22 +1,15 @@
 package com.example.sodrulaminshaon.wifitestapp1.etisalatfree;
 
 import android.os.Environment;
-import android.widget.Toast;
 
 import com.example.sodrulaminshaon.wifitestapp1.MainActivity;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 
 
 /**
@@ -44,7 +37,7 @@ public class PortFinder extends Thread {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        for(int i=activity.port;i<=activity.packetPerSocket;i++){
+        for(int i = activity.port; i<=activity.packetSize; i++){
             Socket socket = new Socket();
 
             try {

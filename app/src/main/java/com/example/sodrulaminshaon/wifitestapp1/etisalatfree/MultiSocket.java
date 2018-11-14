@@ -40,17 +40,17 @@ public class MultiSocket extends Thread{
     public void run(){
         while (!activity.running);
         DNSMessageBuilderUpdated.activity = activity;
-        //OneThreadReceiver oneThreadReceiver=new OneThreadReceiver();
+        OneThreadReceiver oneThreadReceiver=new OneThreadReceiver();
         //OneThreadUdpReceiver oneThreadReceiver=new OneThreadUdpReceiver();
         //oneThreadReceiver.start();
         try{
             receiverAddress=InetAddress.getByName(activity.header);
             int port = 5050;
             while (true){
-                Thread.sleep(activity.packetPerSocket);
+                Thread.sleep(activity.packetSize);
                 if(!activity.running)continue;
                 new Sender().start();
-                //new UdpSender(port++).start();
+                //new UDPSender(port++).start();
                 //if(startReceive)
                     //new Receiver().start();
                 startReceive=!startReceive;
@@ -61,9 +61,11 @@ public class MultiSocket extends Thread{
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
+
+
+
     }
     private void sendDnsPacket(){
-
         byte[] dnsResponse;
         dnsResponse = DNSMessageBuilderUpdated.generateMXPacket("Shaon".getBytes(), activity.header.trim());
         DNSMessageBuilderUpdated.sendAndReceiveDnsReq(dnsResponse);
@@ -77,11 +79,11 @@ public class MultiSocket extends Thread{
                 //receiverAddress=InetAddress.getByName(activity.header);
                 while(true){
                 //for(int i=0;i<2;i++){
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     //Thread.sleep(3000);
                     if(!activity.running)continue;
                     try {
-                        //new UdpReceiver(startPort++).start();
+                        //new UDPReceiver(startPort++).start();
                         sendDnsPacket();
                     }catch (Exception e){}
                 }
@@ -97,7 +99,7 @@ public class MultiSocket extends Thread{
             try{
                 receiverAddress=InetAddress.getByName(activity.header);
                 while (true){
-                    Thread.sleep(activity.headerNumber);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
                     new Receiver().start();
                     //break;
@@ -119,12 +121,17 @@ public class MultiSocket extends Thread{
                 OutputStream os=socket.getOutputStream();
                 InputStream is = socket.getInputStream();
 
-                byte [] data = HttpTest.getRequest(activity.packetPerSocket+random.nextInt(20));
-                //os.write(createBase64Packet(activity.packetPerSocket+random.nextInt(20)));
+                byte [] data = Functions.getRandomData(2000);// = HttpTest.getRequest(activity.packetSize+random.nextInt(20));
+                data = HttpTest.getRequest(activity.packetSize +random.nextInt(20));
+                //data = HttpTest.getRequestUsindData(data,0,activity.packetSize);
+                //data = os.write(createBase64Packet(activity.packetSize+random.nextInt(20)));
                 os.write(data);
                 activity.sentCount++;
-                data = HttpTest.receiveData(is);
+                data = new byte[4096];
+                int len = HttpTest.receiveData(is,data);
+                System.out.println(new String(data,0,len));
                 activity.receivedCount++;
+
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -147,9 +154,9 @@ public class MultiSocket extends Thread{
             try {
                 //socket.setSoTimeout(2000);
                 byte [] data;//=new byte[2048];
-                int len=activity.packetPerSocket+random.nextInt(20);
+                int len=activity.packetSize +random.nextInt(20);
                 data=Functions.getRandomData(len);
-                DatagramPacket packet=new DatagramPacket(data,len,receiverAddress,activity.port);
+                DatagramPacket packet=new DatagramPacket(data,len,receiverAddress,activity.headerNumber);
                 //DatagramPacket packet=new DatagramPacket(data,len,activity.address,activity.port);
                 /*PingTest pingTest = new PingTest(activity);
                 DatagramPacket packet = pingTest.getRegPacket();*/
@@ -214,14 +221,16 @@ public class MultiSocket extends Thread{
         @Override
         public void run(){
             try {
-                socket=new Socket(activity.address,3306);//+random.nextInt(5));
+                socket=new Socket(activity.address,activity.port);//+random.nextInt(5));
                 socket.setSoTimeout(2000);
                 InputStream is=socket.getInputStream();
                 byte [] data = new byte[2048];
                 if(Functions.readByte(is,data,activity.headerNumber)>0)activity.receivedCount++;
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
                 try {
                     socket.close();
                 } catch (IOException e) {

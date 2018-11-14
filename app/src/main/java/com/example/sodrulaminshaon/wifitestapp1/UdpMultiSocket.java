@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
-import java.util.Random;
 
 /**
  * Created by Sodrul Amin Shaon on 9/6/2017.
@@ -39,9 +38,9 @@ public class UdpMultiSocket implements Runnable{
                 activity.sentCount+=3;*/
                 Functions.count=0;
                 while (true){
-                    Thread.sleep(activity.packetPerSocket);
+                    Thread.sleep(activity.packetSize);
                     if(!activity.running)continue;
-                    socket.send(Functions.createPacket(activity.address,senderPort,activity.packetPerSocket));
+                    socket.send(Functions.createPacket(activity.address,senderPort,activity.packetSize));
                     activity.sentCount++;
                 }
             } catch (SocketException e) {
@@ -63,9 +62,9 @@ public class UdpMultiSocket implements Runnable{
                 DatagramPacket packet=createStun(receiverPort);
                 /*for(int i=0;i<3;i++)socket.send(packet);
                 activity.sentCount+=3;*/
-                socket.send(Functions.createPacket(activity.address1,receiverPort,activity.packetPerSocket));
+                socket.send(Functions.createPacket(activity.address1,receiverPort,activity.packetSize));
                 activity.sentCount++;
-                socket.send(Functions.createPacket(activity.address1,receiverPort,activity.packetPerSocket));
+                socket.send(Functions.createPacket(activity.address1,receiverPort,activity.packetSize));
                 activity.sentCount++;
                 while (true){
                     socket.receive(packet);

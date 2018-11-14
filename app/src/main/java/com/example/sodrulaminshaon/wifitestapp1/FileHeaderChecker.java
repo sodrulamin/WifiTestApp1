@@ -122,9 +122,9 @@ public class FileHeaderChecker implements Runnable {
             DatagramSocket socket=new DatagramSocket(2434+checkedYet);
             int i=0;
             while (true){
-                Thread.sleep(activity.packetPerSocket);
+                Thread.sleep(activity.packetSize);
                 if(!activity.running)continue;
-                socket.send(createPacket(activity.address,activity.port,activity.packetPerSocket,header));
+                socket.send(createPacket(activity.address,activity.port,activity.packetSize,header));
                 //System.out.println("Packet sent len 200 count ------------ "+ i);
                 i++;
                 if(i>=100)break;
